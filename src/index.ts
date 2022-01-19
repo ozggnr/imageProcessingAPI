@@ -1,10 +1,11 @@
-import express from 'express'
-const app = express()
-const port = 5000
+import express from 'express';
+import routes from './routes/index';
 
-app.get('/api', (req, res) => {
-    res.send('Hello!')
-})
+const app = express();
+const port = 5000;
+//main route
+app.use('/api', routes);
+
 app.listen(port, () => {
-    console.log(`Listening port ${port}`)
+    console.log(`Listening port ${port}`);
 })
