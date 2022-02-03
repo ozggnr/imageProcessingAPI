@@ -1,6 +1,6 @@
 import express from 'express';
-import sharp from 'sharp';
 import * as fs from 'fs';
+import resize from '../../helpers';
 
 const images = express.Router();
 
@@ -17,18 +17,17 @@ images.get('/', (req, res) => {
         const currDir = process.cwd()
         const outPath = `${currDir}/public/resizedImages/${filename}-${width}x${height}.jpeg`
         //To cache and load from there if file is already exist
-        fs.access(outPath, err => {
-            if(!err) {
-                res.sendFile(outPath)
-            } else {
-                sharp(`public/originalImages/${filename}.jpeg`).resize(width, height)
-                .toFile(`public/resizedImages/${filename}-${width}x${height}.jpeg`, (err, info) => {
-                    res.sendFile(outPath)
+        fs.access(outPath, async (err) => {
+            if(!err) { res.sendFile(outPath) } 
+            else {
+                await resize(filename, width, height).catch((err: Error) => { 
+                    res.send(`<h2>File missing</h2>`) 
                 })
+                res.sendFile(outPath)
             }
         }) 
     } else {
-        res.send("<h2>Missing information! Please be sure if you provide all the informations</h2>")
+        res.send("<h2>Missing or wrong information! Please be sure if you provide all the informations</h2>")
     }
 })
 
